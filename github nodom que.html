@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>AuraGB Bus Reservation</title>
+
+<style>
+body { font-family: Arial; padding: 20px; background:#f2f2f2; }
+.agb-input { padding:8px; margin:5px; width:200px; }
+button { padding:10px; margin-top:10px; cursor:pointer; }
+table { width:100%; margin-top:20px; border-collapse: collapse; }
+th, td { border:1px solid #999; padding:8px; text-align:center; }
+</style>
+
+</head>
+
+<body>
+
+<h2>Bus Reservation (AuraGB Style)</h2>
+
+<input class="agb-input" id="name" placeholder="Name"><br>
+<input class="agb-input" id="email" placeholder="Email"><br>
+<input class="agb-input" id="phone" placeholder="Phone"><br>
+
+<input class="agb-input" id="date" type="date"><br>
+<input class="agb-input" id="time" type="time"><br>
+
+<select class="agb-input" id="gender">
+  <option>Male</option>
+  <option>Female</option>
+</select><br>
+
+<input class="agb-input" id="pickup" placeholder="Pickup"><br>
+<input class="agb-input" id="destination" placeholder="Destination" oninput="calcFare()"><br>
+
+<input class="agb-input" id="seats" type="number" placeholder="Seats" value="1" oninput="calcFare()"><br>
+
+<h3>Fare: ₹<span id="fare">0</span></h3>
+
+<button onclick="reserve()">Reserve Ticket</button>
+
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>From</th>
+<th>To</th>
+<th>Seats</th>
+<th>Fare</th>
+<th>Date</th>
+</tr>
+</thead>
+<tbody id="bookingTable"></tbody>
+</table>
+
+<script>
+// simple fare logic
+function calcFare() {
+    var from = pickup.value;
+    var to = destination.value;
+    var seats = parseInt(seats.value || 1);
+
+    var base = 100;
+
+    if (from && to) {
+        base = 150 + (to.length * 10);
+    }
+
+    var total = base * seats;
+    fare.innerText = total;
+}
+
+// reserve ticket
+function reserve() {
+
+    var data = {
+        name: name.value,
+        from: pickup.value,
+        to: destination.value,
+        seats: seats.value,
+        fare: fare.innerText,
+        date: date.value
+    };
+
+    var old = JSON.parse(localStorage.getItem("tickets") || "[]");
+    old.push(data);
+    localStorage.setItem("tickets", JSON.stringify(old));
+
+    render();
+}
+
+// render table
+function render() {
+
+    var list = JSON.parse(localStorage.getItem("tickets") || "[]");
+    bookingTable.innerHTML = "";
+
+    for (var i = 0; i < list.length; i++) {
+        bookingTable.innerHTML += `
+        <tr>
+            <td>${list[i].name}</td>
+            <td>${list[i].from}</td>
+            <td>${list[i].to}</td>
+            <td>${list[i].seats}</td>
+            <td>₹${list[i].fare}</td>
+            <td>${list[i].date}</td>
+        </tr>`;
+    }
+}
+
+// initial load
+render();
+
+</script>
+
+</body>
+</html>
